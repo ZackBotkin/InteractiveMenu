@@ -1,9 +1,13 @@
 
 class InteractiveMenu(object):
 
-    def __init__(self, manager):
+    def __init__(self, manager, path=[]):
         self.manager = manager
         self.sub_menu_modules = []
+        self.path = []
+        for path_part in path:
+            self.path.append(path_part)
+        self.path.append(self.title())
 
     def menu_print(self, items):
         print("\n")
@@ -33,6 +37,14 @@ class InteractiveMenu(object):
     def get_sub_menu_as_string(self):
         return ', '.join(self.sub_menu_titles())
 
+    def get_path_as_string(self):
+        path_str = ""
+        for path_part in self.path:
+            path_str += (path_part + " -> ")
+        path_str = path_str[:-3]
+        box_length = len(path_str)
+        return "-%s-\n|%s|\n-%s-" % ("-"*box_length, path_str, "-"*box_length)
+
     def get_sub_menu_mapping(self):
         mapping = {}
         for sub_menu in self.sub_menu_modules:
@@ -49,11 +61,15 @@ class InteractiveMenu(object):
 
         while not back_result:
             prompt = ''
+            path_as_str = self.get_path_as_string()
             sub_menu_as_str = self.get_sub_menu_as_string()
             if len(sub_menu_as_str) == 0:
                 prompt = 'Back, Exit'
             else:
                 prompt = '%s, Back, Exit' % sub_menu_as_str
+            print(path_as_str)
+            print("")
+            print("")
             print("%s" % prompt)
             answer = self.fancy_input()
             pre_capitalized_answer = answer
