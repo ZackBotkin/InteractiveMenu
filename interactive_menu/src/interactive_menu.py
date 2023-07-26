@@ -43,7 +43,7 @@ class InteractiveMenu(object):
             path_str += (path_part + " -> ")
         path_str = path_str[:-3]
         box_length = len(path_str)
-        return "-%s-\n|%s|\n-%s-" % ("-"*box_length, path_str, "-"*box_length)
+        return " -%s- \n| %s|\n -%s- " % ("-"*box_length, path_str, "-"*box_length)
 
     def get_sub_menu_mapping(self):
         mapping = {}
@@ -60,17 +60,16 @@ class InteractiveMenu(object):
         sub_menu_mapping = self.get_sub_menu_mapping()
 
         while not back_result:
-            prompt = ''
             path_as_str = self.get_path_as_string()
-            sub_menu_as_str = self.get_sub_menu_as_string()
-            if len(sub_menu_as_str) == 0:
-                prompt = 'Back, Exit'
-            else:
-                prompt = '%s, Back, Exit' % sub_menu_as_str
             print(path_as_str)
+            print("|")
+            for submenu_title in self.sub_menu_titles():
+                print("| > %s" % submenu_title)
+            print("| ")
+            print("| > Back")
+            print("| > Exit")
+            print("|")
             print("")
-            print("")
-            print("%s" % prompt)
             answer = self.fancy_input()
             pre_capitalized_answer = answer
             answer = answer.capitalize()
