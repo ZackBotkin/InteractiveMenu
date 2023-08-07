@@ -1,10 +1,11 @@
 
 class InteractiveMenu(object):
 
-    def __init__(self, manager, path=[]):
+    def __init__(self, manager, path=[], title_text=None):
         self.manager = manager
         self.sub_menu_modules = []
         self.path = []
+        self.title_text = title_text
         for path_part in path:
             self.path.append(path_part)
         self.path.append(self.title())
@@ -52,35 +53,101 @@ class InteractiveMenu(object):
         return mapping
 
     def title(self):
-        raise Exception("Not implemented yet!")
+        if self.title_text is None:
+            raise Exception("Not implemented yet!")
+        else:
+            return self.title_text
 
-    def main_loop(self):
+    def main_loop(self, **kwargs):
 
         back_result = False
         sub_menu_mapping = self.get_sub_menu_mapping()
 
-        while not back_result:
-            path_as_str = self.get_path_as_string()
-            print(path_as_str)
-            print("|")
-            for submenu_title in self.sub_menu_titles():
-                print("| > %s" % submenu_title)
-            print("| ")
-            print("| > Back")
-            print("| > Exit")
-            print("|")
-            print("")
-            answer = self.fancy_input()
-            pre_capitalized_answer = answer
-            answer = answer.capitalize()
-            if answer in sub_menu_mapping:
-                sub_menu_module = sub_menu_mapping[answer]
-                sub_menu_module.main_loop()
-            elif answer in ["back", "Back"]:
-                back_result = True
-            elif answer in ["exit", "Exit"]:
-                exit()
-            elif answer == '':
+        if "continued_commands" in kwargs:
+            continued_commands = kwargs["continued_commands"]
+            this_command = continued_commands.pop(0)
+            pre_capitalized_answer = this_command
+            this_command = this_command.capitalize()
+            if this_command in sub_menu_mapping:
+                sub_menu_module = sub_menu_mapping[this_command]
+                if len(continued_commands) > 0:
+                    sub_menu_module.main_loop(**{'continued_commands': continued_commands})
+                else:
+                    sub_menu_module.main_loop()
+            elif this_command in ["back", "Back"]:
+                pass
+            elif this_command in ["exit", "Exit"]:
                 pass
             else:
                 print("\"%s\" is not a valid choice. Please choose one of the following options" % pre_capitalized_answer)
+        else:
+            while not back_result:
+                path_as_str = self.get_path_as_string()
+                print(path_as_str)
+                print("|")
+                for submenu_title in self.sub_menu_titles():
+                    print("| > %s" % submenu_title)
+                print("| ")
+                print("| > Back")
+                print("| > Exit")
+                print("|")
+                print("")
+                answer = self.fancy_input()
+                answer_parts = answer.split(" ")
+                pre_capitalized_answer = answer_parts[0]
+                answer = answer_parts.pop(0).capitalize()
+                if answer in sub_menu_mapping:
+                    sub_menu_module = sub_menu_mapping[answer]
+                    if len(answer_parts) > 0:
+                        sub_menu_module.main_loop(**{'continued_commands': answer_parts})
+                    else:
+                        sub_menu_module.main_loop()
+                elif answer in ["back", "Back"]:
+                    back_result = True
+                elif answer in ["exit", "Exit"]:
+                    exit()
+                elif answer == '':
+                    pass
+                else:
+                    print("\"%s\" is not a valid choice. Please choose one of the following options" % pre_capitalized_answer)
+
+
+    #
+    #   [ { "question": "", "expected_response_type": "", "return_as": "", "nullable": True }]
+    #
+    def interactive_form(self, form_contents):
+
+        to_return = {
+        }
+
+        for content in form_contents:
+            print(content["question"])
+            answer = self.fancy_input()
+            if answer == "":
+                answer = content["default"]
+            if content["expected_response_type"] == "YYYYMMDD_Date":
+                valid_string = self.validate_YYYYMMDD_date(answer)
+            else:
+                valid_string = True
+            if answer == "" and not content["allow_empty"]:
+                valid_string = False
+            to_return[content["return_as"]] = {
+                "value": answer,
+                "valid": valid_string
+            }
+
+        for value_name, content in to_return.items():
+            print("|\t> %s -----------> %s" % (value_name, to_return[value_name]["value"]))
+        print("OK?")
+        answer = self.fancy_input()
+        if answer in ["yes", "Yes", "ok", "OK"]:
+            to_return["user_accept"] = True
+            return to_return
+        else:
+            return {
+                "user_accept": False
+            }
+
+    def validate_YYYYMMDD_date(self, text):
+        return True
+
