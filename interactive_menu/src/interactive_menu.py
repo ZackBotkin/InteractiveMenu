@@ -128,6 +128,8 @@ class InteractiveMenu(object):
                 answer = content["default"]
             if content["expected_response_type"] == "YYYYMMDD_Date":
                 valid_string = self.validate_YYYYMMDD_date(answer)
+            elif content["expected_response_type"] == "FLOAT":
+                valid_string = self.validate_FLOAT(answer)
             else:
                 valid_string = True
             if answer == "" and not content["allow_empty"]:
@@ -161,3 +163,10 @@ class InteractiveMenu(object):
             except:
                 pass
         return len(parsed) >= 1
+
+    def validate_FLOAT(self, text):
+        try:
+            float(text)
+            return True
+        except:
+            return False
