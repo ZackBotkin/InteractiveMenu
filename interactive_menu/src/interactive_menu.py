@@ -1,3 +1,4 @@
+from datetime import datetime
 
 class InteractiveMenu(object):
 
@@ -148,6 +149,15 @@ class InteractiveMenu(object):
                 "user_accept": False
             }
 
-    def validate_YYYYMMDD_date(self, text):
-        return True
 
+    ## outsource this to utils project
+    def validate_YYYYMMDD_date(self, text):
+        accepted_formats = ["%Y-%m-%d", "%Y/%m/%d", "%Y%m%d"]
+        parsed = []
+        for _format in accepted_formats:
+            try:
+                d = datetime.strptime(text, _format)
+                parsed.append(d)
+            except:
+                pass
+        return len(parsed) >= 1
