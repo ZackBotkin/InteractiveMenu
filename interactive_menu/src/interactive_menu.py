@@ -161,6 +161,7 @@ class InteractiveMenu(object):
             if not form_results[answer_key]["valid"]:
                 print("%s is not a valid value! Aborting" % answer_key)
                 return None
+        return form_results
 
     ## outsource this to utils project
     def validate_YYYYMMDD_date(self, text):
