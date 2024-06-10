@@ -151,6 +151,16 @@ class InteractiveMenu(object):
                 "user_accept": False
             }
 
+    def interactive_form_and_validate(self, form_contents):
+        form_results = self.interactive_form(form_contents)
+        if form_results["user_accept"] != True:
+            print("Aborting!")
+            return None
+        form_results.pop("user_accept")
+        for answer_key in form_results.keys():
+            if not form_results[answer_key]["valid"]:
+                print("%s is not a valid value! Aborting" % answer_key)
+                return None
 
     ## outsource this to utils project
     def validate_YYYYMMDD_date(self, text):
